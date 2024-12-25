@@ -1,5 +1,44 @@
 console.log('Happy developing ✨')
 
+/* 순수 함수 */
+function add(a, b) {
+    return a + b;
+}
+
+console.log( add(10, 5) );
+console.log( add(10, 5) );
+console.log( add(10, 5) );
+console.log( add(10, 5) );
+console.log( add(10, 5) );
+
+console.log('예제 2 >>> 순수함수가 아니다.');
+
+var c = 10;
+function add2(a, b) {
+    return a + b + c;
+}
+
+console.log( add2(10, 2) ); // 22
+console.log( add2(10, 3) );
+console.log( add2(10, 4) );
+c = 20;
+console.log( add2(10, 2) ); // 32
+console.log( add2(10, 3) );
+console.log( add2(10, 4) );
+
+console.log('예제 3 >>> 순수함수가 아니다 -> 다른 변수의 상태를 바꿈');
+
+var c = 20;
+function add3(a, b) {
+    c = b;
+    return a + b;
+}
+
+console.log('c : ', c);
+console.log( add3(20, 30) );
+console.log('c : ', c);
+
+
 var obj1 = { val: 10 };
 function add4(obj, b) {
     obj.val += b;
@@ -9,7 +48,9 @@ console.log( obj1.val );
 add4(obj1, 20);
 console.log( obj1.val );
 
-// 순수 함수
+
+console.log( '예제 4 >>> 다시 순수함수' );
+
 var obj1 = { val: 10 };
 function add5(obj, b) {
     return { val: obj.val + b };
@@ -34,9 +75,8 @@ var f1 = function (a) {
 
 console.log( f1 );
 
-// var f2 = add;
-// console.log( f2 );
-
+var f2 = add;
+console.log( f2 );
 // 함수를 인자로 받을 수 있음
 
 console.log( 'f3' );
@@ -47,7 +87,7 @@ function f3(f) {
 f3(function () { return 10 });
 // 일급함수와 순수함수를 조합하여 다양한 로직을 만드는 것 = 함수형 프로그래밍
 
-// 순수함수와 일급함수를 조합한 재미있는 예제
+// 순수함수와 일급함수를 조합한 재미있는 예제 add_maker
 function add_maker(a) {
     return function (b) {
         return a + b;
