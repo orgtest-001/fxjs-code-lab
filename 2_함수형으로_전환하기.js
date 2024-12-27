@@ -1,4 +1,4 @@
-import {_filter, _map} from "./js/_js";
+import {_filter, _map} from "./js/_js.js";
 
 var users = [
     { id: 1, name: 'ID', age: 36 },
