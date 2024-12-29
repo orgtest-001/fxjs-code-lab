@@ -1,4 +1,4 @@
-import {_filter, _map} from "./js/_js.js";
+import {_curry, _curryr, _each, _filter, _get, _map} from "./js/_js.js";
 
 var users = [
     { id: 1, name: 'ID', age: 36 },
@@ -110,22 +110,6 @@ _map([1,2,3,4], function(val) {
     return val * 2;
 })
 
-// 커링 -> 함수와 인자를 다루는 기법
-// 자바스크립트는 커링이 지원되지 않지만, 1급함수가 지원되고 평가시점을 마음대로 다룰 수 있게 커링과 같은 기법을 구현할 수 있음
-function _curry(fn) {
-    return function (a,  b) {
-        return arguments.length == 2 ? fn(a, b) : function (b) {
-            return fn(a, b);
-        };
-    }
-}
-
-function _curryr(fn) {
-    return function (a, b) {
-        return arguments.length == 2 ? fn(a, b) : function (b) { return fn(b, a); };
-    }
-}
-
 console.log("커링 예시 >>>> ")
 var add = _curry(function (a, b) {
     return a + b;
@@ -148,11 +132,6 @@ console.log( sub(10, 5) );
 
 var sub10 = sub(10);
 console.log( sub10(5) );
-
-// 2. _get 만들어 좀 더 간단하게 하기
-var _get = _curryr(function (obj, key) {
-    return obj == null ? undefined : obj[key];
-});
 
 console.log("_get에 대한 예제 >>>> ")
 var user1 = users[0]
@@ -190,3 +169,32 @@ console.log(
         _get('age')
     )
 );
+
+console.log("Reduce 함수 >>> ")
+function _rest(list, num) {
+    return Array.prototype.slice.call(list, num || 1);
+}
+
+function _reduce(list, iter, memo) {
+    if (arguments.length == 2) {
+        memo = list[0];
+        list = _rest(list);
+    }
+    _each(list, function (val) {
+        memo = iter(memo, val);
+    })
+    return memo;
+}
+console.log(_reduce([1,2,3], function (a, b) {
+    return a + b;
+}, 0));
+
+
+console.log(_reduce([1, 2, 3, 4], function (a, b) {
+    return a + b;
+}));
+// _reudce함수는 재귀적으로 memorize를 활용하여 실행
+// _reduce 함수는 축약을 시키는 함수 -> 원하는 새로운 값을 만들어 버린다 -> 원래 자료와 다른 축약된 자료를 만들어 버림
+
+// filter, map : Array -> Array / reduce : Array -> ?
+// 두번째로 받은 함수를 재귀적으로 돌면서 값을 축약해 주는 함수
