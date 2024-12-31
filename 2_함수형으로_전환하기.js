@@ -1,4 +1,4 @@
-import {_curry, _curryr, _each, _filter, _get, _map} from "./js/_js.js";
+import {_curry, _curryr, _each, _filter, _get, _go, _map, _pipe} from "./js/_js.js";
 
 var users = [
     { id: 1, name: 'ID', age: 36 },
@@ -198,3 +198,71 @@ console.log(_reduce([1, 2, 3, 4], function (a, b) {
 
 // filter, map : Array -> Array / reduce : Array -> ?
 // 두번째로 받은 함수를 재귀적으로 돌면서 값을 축약해 주는 함수
+
+// 5. 파이프라인 만들기
+
+var f1 = _pipe(
+    function (a) { return  a + 1;  }, // 1 + 1
+    function (a) { return a * 2; }) // 2 * 2
+
+console.log(f1(1))
+
+// pipe는 _reduce에 특화된 함수 -> 보다 추상화 된 것이 _reduce
+// 연속적으로 함수를 실행할 때 사용하는 것이 pipe 함수 : 함수를 리턴하는 함수
+
+// 2. _go
+_go(1,
+    function (a) { return a + 1; },
+    function (a) { return a * 2; },
+    console.log);
+
+// 3. users에 _go 적용
+_go(users,
+    function (users) {
+        return _filter(users, function (user) {
+            return user.age >= 30;
+        });
+    },
+    function (users) {
+        return _map(users, _get('name'));
+    },
+    console.log
+);
+
+_go(users,
+    function (users) {
+        return _filter(users, function (user) {
+            return user.age < 30;
+        });
+    },
+    function (users) {
+        return _map(users, _get('age'));
+    },
+    console.log
+);
+
+// 커링을 사용해 간결해진 코드
+_go(users,
+    _filter(function (user) { return user.age >= 30; }),
+    _map(_get('name')),
+    console.log
+);
+
+_go(users,
+    _filter(function (user) { return user.age < 30; }),
+    _map(_get('age')),
+    console.log
+);
+
+// 화살표 함수를 이용한 더 간결해진 코드
+_go(users,
+    _filter(user => user.age >= 30 ),
+    _map(_get('name')),
+    console.log
+);
+
+_go(users,
+    _filter(user => user.age < 30 ),
+    _map(_get('age')),
+    console.log
+);

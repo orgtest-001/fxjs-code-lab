@@ -42,3 +42,22 @@ export function _curryr(fn) {
 export var _get = _curryr(function (obj, key) {
     return obj == null ? undefined : obj[key];
 });
+
+export var _map = _curryr(_map),
+    _filter = _curry(_filter);
+
+// 1. _pipe
+export function _pipe() {
+    var fns = arguments;
+
+    return function (arg) {
+        return _reduce(fns, function(arg, fn) {
+            return fn(arg);
+        }, arg);
+    }
+}
+
+export function _go(arg) {
+    var fns = _rest(arguments);
+    return _pipe.apply(null, fns)(arg);
+}
