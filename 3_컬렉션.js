@@ -1,5 +1,5 @@
 // 기준 데이터
-import {_filter, _map} from "./js/_js";
+import {_curryr, _filter, _map} from "./js/_js";
 
 var users = [
     { id: 10, name: 'ID', age: 36 },
@@ -68,5 +68,68 @@ var _compact = _filter(_identity);
 
 console.log(_compact([1, 2, 0, false, null, {}]))
 
-// 찾아내기
+// 찾아내기 - find
+// 1. find 만들기 -> filter 함수와 비슷, filter 함수는 전체를 순회 후 배열 리턴 -> find는 true가 될 때 인덱스 값 리턴
+var _find = curryr(function(list, predi) {
+    var keys = _keys(list);
+    for (var i = 0, len = keys.length; i < len; i++) {
+        var val = list[keys[i]];
+        if (predi(val)) return val;
+    }
+});
+
+console.log(_find(users, user => user.age < 30));
+
+// 2. find_index
+var _find_index = curryr(function(list, predi) {
+    var keys = _keys(list);
+    for (var i = 0, len = keys.length; i < len; i++) {
+        var val = list[keys[i]];
+        if (predi(val)) return i;
+    }
+    return -1;
+});
+
+console.log(
+    _find_index(users, user => user.id === 30)
+);
+
+_go(
+    users,
+    _find_index(user => user.id === 50),
+    console.log
+);
+
+// 3. some
+var _some =  _curryr((list, predi) => {
+    _find_index(data, predi || _identity) !== -1;
+});
+
+function _some(list, predi) {
+    return _find_index(data, predi || _identity) !== -1;
+}
+
+_some([1, 2, 5, 10, 20], function(val) {
+    return val > 10;
+}); // true 벨류가 10보다 큰게 하나라도 있다면!
+
+// 4. every
+function _every(list, predi) {
+    return _find_index(data, _negate(predi || _identity)) === -1;
+}
+
+_every([1, 2, 5, 10, 20], function(val) {
+    return val > 10;
+}); // false 벨류가 전부 10보다 커야 한다!
+
+console.log(
+    _some(users, user => user.age < 20)
+);
+
+_go(
+    users,
+    _some(user => user.age > 30),
+    console.log
+);
+
 // 접기
