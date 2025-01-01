@@ -266,3 +266,22 @@ _go(users,
     _map(_get('age')),
     console.log
 );
+
+// _each의 외부 다형성 높이기
+// 1. each에 null을 넣어도 에러가 나오게 하지 않기
+console.log("_each에 null")
+_each(null, console.log);
+// 서로가 리턴하는 값이 에러를 내는게 아닌 그럴싸한 답을 내게 하는 것이 중요함 -> 에러를 내지 않고 정확하게 데이터를 다룰 수 있는 방식
+// 데이터를 다루는 ORM에서 이러한 패러다임을 많이 선택함
+// 어떤 값이 들어오더라도 다형성을 높여서 그럴싸한 값이 들어오게 하는 것이 함수형 프로그래밍의 핵심
+
+// 2. keys 만들기
+Object.keys([{name : 'id', age: 33}]); // key가 null 이면 에러가남
+
+_each({
+    13: 'name',
+    18: 'nana',
+    19: 'hoho'
+}, function(name) {
+    console.log(name);
+})

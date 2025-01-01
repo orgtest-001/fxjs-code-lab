@@ -16,8 +16,12 @@ export function _map(values, mapper) {
     return new_list;
 }
 
+// var _length = _get('length');
+
 export function _each(list, iterator) {
-    for (var i = 0; i < list.length; i++) {
+    var keys = _keys(list);
+
+    for (var i = 0, len = keys.length; i < len; i++) {
         iterator(list[i]);
     }
     return list;
@@ -43,8 +47,8 @@ export var _get = _curryr(function (obj, key) {
     return obj == null ? undefined : obj[key];
 });
 
-export var _map = _curryr(_map),
-    _filter = _curry(_filter);
+export var _mapValue = _curryr(_map),
+    _filterValue = _curry(_filter);
 
 // 1. _pipe
 export function _pipe() {
@@ -61,3 +65,13 @@ export function _go(arg) {
     var fns = _rest(arguments);
     return _pipe.apply(null, fns)(arg);
 }
+
+function _is_object(obj) {
+    return typeof obj === 'object' && !!obj;
+}
+
+function _keys(obj) {
+    return _is_object(obj) ? Object.keys(obj) : [];
+}
+
+// 함수형 프로그래밍 = 다형성과 유연함 높이기 -> 데이터가 없다는 것에 대한 처리가 컬렉션 중심 프로그래밍 (객체지향)과는 다르다.
