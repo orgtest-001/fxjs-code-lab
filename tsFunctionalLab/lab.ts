@@ -6,3 +6,4 @@ const numbers = [
 ];
 
 const oddSquareSum = numbers
+    .flat()

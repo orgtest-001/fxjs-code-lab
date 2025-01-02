@@ -10,8 +10,8 @@ export function _filter(values, predicate) {
 
 export function _map(values, mapper) {
     var new_list = [];
-    _each(values, function (value) {
-        new_list.push(mapper(value))
+    _each(values, function (value, key) {
+        new_list.push(mapper(value, key))
     });
     return new_list;
 }
@@ -22,7 +22,7 @@ export function _each(list, iterator) {
     var keys = _keys(list);
 
     for (var i = 0, len = keys.length; i < len; i++) {
-        iterator(list[i]);
+        iterator(list[keys[i]], keys[i]);
     }
     return list;
 }

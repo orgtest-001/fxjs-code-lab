@@ -132,4 +132,145 @@ _go(
     console.log
 );
 
-// 접기
+// 접기 - reduce
+// 집계 및 무언가를 merge한 값 혹은 전혀 다른 값을 만들 때 사용함
+// 순수 함수로서 이해하는 것이 필요하다.
+
+function _min(data) {
+    return _reduce(data, function (a, b) {
+        return a < b ? a : b;
+    });
+}
+
+function _max(data) {
+    return _reduce(data, (a, b) => a > b ? a : b);
+}
+
+_min([1, 2, 4, 10, 5, -4]);
+_max([1, 2, 4, 10, 5, -4]);
+
+function _min_by(data, iter) {
+    return _reduce(data, (a, b) => iter(a) < iter(b) ? a : b);
+}
+
+function _max_by(data, iter) {
+    return _reduce(data, (a, b) => iter(a) > iter(b) ? a : b);
+}
+
+var min_by = _curryr(_min_by),
+    max_by = _curryr(_max_by);
+
+_min_by([1 ,2, 4, 10, 5, -4], Math.abs);
+_max_by([1 ,2, 4, 10, 5, -4], Math.abs);
+
+console.log(
+    _min_by(users, function (user){
+        return user.age;
+    })
+);
+
+_go(
+    users,
+    _find_index(user => user.age > 30),
+    _min_by(user => user.age), // _min_by(_get('age'))
+    console.log
+);
+
+function _push(obj, key, val) {
+    (obj[key] = obj[key] || []).push(val);
+    return obj;
+}
+
+
+var _group_by = _curryr(function(data, iter) {
+    return _reduce(data, function(grouped, val) {
+        return _push(grouped, iter(val));
+    }, {});
+});
+
+_go(users,
+    _group_by(user => user.age), // _get('age') 를 통해서도 가능
+    console.log
+)
+
+_group_by(users, function (user) {
+    return user.age;
+})
+
+// 함수형 프로그램잉적으로 생각해보기
+_go(users,
+    _group_by(user => user.name[0]),
+    console.log
+)
+
+//  보다 함수적으로 생각해보자
+var _head = function(list) {
+    return list[0];
+};
+
+_go(users,
+    _group_by(_pipe(_get('name'), _head)),
+    console.log
+);
+
+// count_by
+
+var _inc = (count, key) => {
+    count[key] ? count[key]++ : 1;
+    return count;
+}
+
+var _count_by = _curryr(function(data, iter) {
+    return _reduce(data, function(count, val) {
+        _inc(count, iter(val));
+    }, {});
+});
+
+_go(users,
+    _count_by(user => user.age - user.age % 10),
+    console.log
+)
+
+_map([1, 2, 3], console.log);
+
+var _pairs = _map((val, key) => [key, val]);
+
+// 실무적인 예제 만들기
+
+var _document_write = document.write.bind(document);
+
+_go(users,
+    // 10대는 거를 때
+    // _filter(user => user.age > 10),
+    _count_by(user => user.age - user.age % 10),
+    _map((count, key) => `${key} 대는 ${count}명입니다.`),
+    liast => list.join(''),
+    // function (html) {
+    //     document.write
+    // }
+    // console.log
+    // html => document.write(html)
+    _document_write
+);
+
+// TO 함수
+
+var _f1 = _pipe(
+    _count_by(user => user.age - user.age % 10),
+    _map((count, key) => `${key} 대는 ${count}명입니다.`),
+    liast => list.join(''),
+    _document_write
+);
+
+f1(users);
+
+var f2 = _pipe(
+    _filter(user => user.age > 20), f1
+)
+f2(users);
+
+_go(
+    users,
+    _filter(user => user.age > 20),
+    f1
+)
