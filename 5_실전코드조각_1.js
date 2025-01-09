@@ -136,3 +136,131 @@ _.go(
 )
 
 // 5. users + posts + comments (index_by와 group_by)로 효율성 높이기
+// 데이터를 불변적으로 다루는게 핵심
+
+var users2 = _.index_by(users, 'id');
+
+// function find_user_by_id(user_id) {
+//     return _find(users, function(user) {
+//         return user.id === comment.user_id;
+//     });
+// }
+
+function find_user_by_id(user_id) {
+    return users2[user_id];
+}
+
+// var comments2 = _.map(comments, function(comment) {
+//     return _.extend({
+//     //    user: find_user_by_id(comment.user_id) // 중복 순회 발생
+//         user: find_user_by_id(comment.user_id) // 효율 증가
+//     }, comment); // 값 복사를 하게됨
+// });
+
+var comments2 = _.go(
+    comments,
+    _map(function (comment) {
+        return _.extend({
+            user: users2[comment.user_id],
+        }, comment);
+    }),
+    _.group_by('post_id')
+)
+
+// var posts2 = _.map(posts, function(post) {
+//     return _.extend(
+//         {
+//             comments: comments2[post.id],
+//             user: find_user_by_id(post.user_id)
+//     }, post);
+// });
+
+var posts2 = _.go(
+    posts,
+    _.map(function (post) {
+        return _.extend({
+            comments: comments2[post.id] || [],
+            user: users2[post.user_id]
+        }, post);
+    }),
+    _.group_by('user_id')
+);
+
+
+var users3 = _.map(users2, function(user) {
+    return _.extend({
+        posts: posts2[user.id] || []
+    }, user);
+});
+// 참조값을 다루고 값을 순회하여 재귀하지 않는게 성능 및 strigify에 좋다.
+
+// 5.1 특정인의 posts의 모든 comments 꺼내기
+var user = users3[0];
+
+_.go(
+    user.posts,
+    _.pluck('comments'),
+    _.flatten,
+    console.log
+);
+
+_.go(
+    user,
+    _.deep_pluck('posts.comments'),
+    console.log
+);
+
+// 5.2 특정인의 posts에 commnets를 단 친구의 이름들 뽑기
+
+_.go(
+    user.posts,
+    _.pluck('comments'),
+    _.flatten,
+    _.pluck('user'),
+    _.pluck('name'),
+    _.uniq,
+    console.log
+)
+
+_.go(
+    user,
+    _.deep_pluck('posts.comments.user.name'),
+    _.uniq,
+    console.log
+)
+
+
+// 5.3 특정인의 posts에 comments를 단 친구들 카운트
+
+_.go(
+    user.posts,
+    _.pluck('comments'),
+    _.flatten,
+    _.pluck('user'),
+    _.pluck('name'),
+    _.count_by,
+    console.log
+);
+
+_.go(
+    user,
+    _.deep_pluck('posts.comments.user.name'),
+    _.count_by,
+    console.log
+)
+
+var posts3 = _.go(
+    posts,
+    _.map(function (post) {
+        return _.extend({
+            comments: comments2[post.id] || [],
+            user: users2[post.user_id]
+        }, post);
+    }));
+
+// 5.4 특정인이 comments를 단 posts 거르기
+_.filter(posts3, function(post) {
+    return _.find(post.comments, function(comment) {
+        return comment.user_id === 105;
+    })
+})
